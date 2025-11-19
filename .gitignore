@@ -1,0 +1,36 @@
+# Ignore Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Ignore environment files
+.env
+env/
+venv/
+.venv/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore log files
+*.log
+
+# Ignore IDE files (e.g., Visual Studio Code, IntelliJ)
+.vscode/
+.idea/
+
+# Ignore build output directories
+dist/
+build/
+
+# Ignore dependency directories
+node_modules/
+bower_components/
+
+# Ignore test coverage reports
+coverage/
+*.cover
+
+# Ignore operating system files
+Desktop.ini
