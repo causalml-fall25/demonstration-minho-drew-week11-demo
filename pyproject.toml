@@ -1,0 +1,12 @@
+[project]
+name = "demonstration-minho-drew-week11-demo"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "jupyter>=1.1.1",
+    "numpy>=2.3.5",
+    "plotnine>=0.15.1",
+    "ruff>=0.14.5",
+]
