@@ -34,9 +34,6 @@ class ActorCritic(nn.Module):
         # Optimizer for training the model
         self.optimizer = optim.Adam(self.parameters(), lr=lr)
 
-        # Small epsilon to avoid numerical instability in calculations (for numerical precision)
-        self.eps = np.finfo(np.float32).eps.item()
-
     def actor(self, x: torch.Tensor) -> torch.Tensor:
         """
         Forward pass through the actor network to compute the action probabilities.
