@@ -34,3 +34,4 @@ coverage/
 
 # Ignore operating system files
 Desktop.ini
+/.ipynb_checkpoints
