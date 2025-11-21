@@ -1,3 +1,5 @@
+from logging import CRITICAL
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -46,7 +48,7 @@ class ActorCritic(nn.Module):
 
         """
         x = f.relu(self.affine1(x))  # Apply the first affine layer and ReLU activation
-        log_probs = f.softmax(self.action_head(x), dim=-1)  # Compute the log-probabilities of each action
+        log_probs = f.log_softmax(self.action_head(x), dim=-1)  # Compute the log-probabilities of each action
         return log_probs
 
     def critic(self, x: torch.Tensor) -> torch.Tensor:
@@ -127,10 +129,12 @@ class ActorCritic(nn.Module):
 
         # Compute the actor loss (negative log-probability * advantage)
         actor_loss = -(selected_log_probs * advantages).mean()  # Mean over the batch
+        critic_loss = nn.MSELoss()(state_value.squeeze(), rewards_tensor)  # Mean squared error loss
 
+        loss = actor_loss + critic_loss
         # Backpropagate and update the network's parameters
         self.optimizer.zero_grad()  # Zero out any previous gradients
-        actor_loss.backward()  # Perform backpropagation
+        loss.backward()  # Perform backpropagation
         self.optimizer.step()  # Update the parameters using the gradients
 
         return actor_loss.item()  # Return the actor loss as a float
