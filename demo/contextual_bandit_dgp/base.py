@@ -38,7 +38,7 @@ class DGPBase(metaclass=ABCMeta):
             num_units: Number of units/samples to generate.
 
         Returns:
-            Array of context features.
+            Array of context features with shape (num_units, n_features).
 
         """
         raise NotImplementedError

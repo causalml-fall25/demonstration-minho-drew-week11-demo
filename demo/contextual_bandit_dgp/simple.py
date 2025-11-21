@@ -71,15 +71,14 @@ class Simple(DGPBase):
         Generate context features.
 
         Args:
-            num_units: Number of units/samples to generate (currently unused,
-                always returns a single context vector).
+            num_units: Number of units/samples to generate.
 
         Returns:
-            A 1D array of shape (n_features,) containing context features
+            Array of shape (num_units, n_features) containing context features
             drawn from a standard normal distribution.
 
         """
-        return np.random.normal(size=(self.n_features,))
+        return np.random.normal(size=(num_units, self.n_features))
 
     def r(self, a: NDArray[np.int_], x: NDArray[np.float64]) -> NDArray[np.float64]:
         """
