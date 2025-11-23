@@ -9,21 +9,22 @@ from numpy.typing import NDArray
 class PolicyGradient(nn.Module):
     """Policy gradient model for reinforcement learning."""
 
-    def __init__(self, n_features: int, n_actions: int, lr: float = 3e-2):
+    def __init__(self, n_features: int, n_actions: int, n_hidden_units: int = 128, lr: float = 3e-2):
         """
         Initialize the policy network.
 
         Args:
             n_features: Number of input features.
             n_actions: Number of possible actions.
+            n_hidden_units: Number of hidden units.
             lr: Learning rate for the optimizer.
 
         """
         super(PolicyGradient, self).__init__()
 
         # Define the layers of the network
-        self.affine1 = nn.Linear(n_features, 128)
-        self.action_head = nn.Linear(128, n_actions)
+        self.affine1 = nn.Linear(n_features, n_hidden_units)
+        self.action_head = nn.Linear(n_hidden_units, n_actions)
 
         # Optimizer
         self.optimizer = optim.Adam(self.parameters(), lr=lr)

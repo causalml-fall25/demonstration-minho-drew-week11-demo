@@ -22,14 +22,14 @@ class ActorCritic(nn.Module):
 
     """
 
-    def __init__(self, n_features: int, n_actions: int, lr: float = 3e-2):
+    def __init__(self, n_features: int, n_actions: int, n_hidden_units: int = 128, lr: float = 3e-2):
         """Initialize the actor and critic networks."""
         super(ActorCritic, self).__init__()
 
         # Define the layers of the network for both actor and critic
-        self.affine1 = nn.Linear(n_features, 128)  # Common first layer for both networks
-        self.action_head = nn.Linear(128, n_actions)  # Action output layer (Actor)
-        self.value_head = nn.Linear(128, 1)  # Value output layer (Critic)
+        self.affine1 = nn.Linear(n_features, n_hidden_units)  # Common first layer for both networks
+        self.action_head = nn.Linear(n_hidden_units, n_actions)  # Action output layer (Actor)
+        self.value_head = nn.Linear(n_hidden_units, 1)  # Value output layer (Critic)
 
         # Optimizer for training the model
         self.optimizer = optim.Adam(self.parameters(), lr=lr)

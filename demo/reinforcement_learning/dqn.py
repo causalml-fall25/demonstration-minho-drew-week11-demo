@@ -24,13 +24,14 @@ class DQN(nn.Module):
 
     """
 
-    def __init__(self, n_features: int, n_actions: int, lr: float = 3e-2, epsilon: float = 0.1):
+    def __init__(self, n_features: int, n_actions: int, lr: float = 3e-2, n_hidden_units: int = 128, epsilon: float = 0.1):
         """
         Initialize a DQN (Deep Q-Network) model.
 
         Args:
             n_features (int): Number of input features (size of the state space).
             n_actions (int): Number of possible actions in the environment.
+            n_hidden_units (int): Number of hidden units in the network.
             lr (float, optional): Learning rate for the optimizer. Default is 3e-2.
             epsilon (float, optional): Probability of choosing a random action for epsilon-greedy policy. Default is 0.1.
 
@@ -38,8 +39,8 @@ class DQN(nn.Module):
         super(DQN, self).__init__()
 
         # Define the layers of the network
-        self.affine1 = nn.Linear(n_features, 128)
-        self.q_value_head = nn.Linear(128, n_actions)
+        self.affine1 = nn.Linear(n_features, n_hidden_units)
+        self.q_value_head = nn.Linear(n_hidden_units, n_actions)
 
         # Optimizer
         self.optimizer = optim.Adam(self.parameters(), lr=lr)
