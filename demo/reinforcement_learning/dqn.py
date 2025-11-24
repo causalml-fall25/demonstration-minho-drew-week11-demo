@@ -14,15 +14,6 @@ class DQN(nn.Module):
     This class defines the architecture of a Deep Q-Network used for approximating Q-values in
     reinforcement learning tasks. It includes methods for forward passes, action selection using
     an epsilon-greedy policy, and updating Q-values using the Bellman equation through gradient descent.
-
-    Attributes:
-        n_features (int): Number of input features (state space size).
-        n_actions (int): Number of possible actions in the environment.
-        epsilon (float): The probability of selecting a random action (exploration vs. exploitation).
-        optimizer (torch.optim.Adam): Optimizer used for updating the network parameters.
-        affine1 (torch.nn.Linear): Fully connected layer to transform input features.
-        q_value_head (torch.nn.Linear): Fully connected layer to output Q-values for each action.
-
     """
 
     def __init__(self, n_features: int, n_actions: int, lr: float = 3e-2, n_hidden_units: Union[int, Sequence[int]] = 128, epsilon: float = 0.1):
@@ -32,7 +23,10 @@ class DQN(nn.Module):
         Args:
             n_features (int): Number of input features (size of the state space).
             n_actions (int): Number of possible actions in the environment.
-            n_hidden_units (int): Number of hidden units in the network.
+            n_hidden_units (int | Sequence[int], optional):
+                Size(s) of hidden layers in the shared part of the network.
+                If an int is given, a single hidden layer is used. If a sequence
+                is given, one hidden layer is created per element. Defaults to 128.
             lr (float, optional): Learning rate for the optimizer. Default is 3e-2.
             epsilon (float, optional): Probability of choosing a random action for epsilon-greedy policy. Default is 0.1.
 

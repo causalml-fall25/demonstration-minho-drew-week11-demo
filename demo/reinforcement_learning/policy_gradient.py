@@ -18,7 +18,10 @@ class PolicyGradient(nn.Module):
         Args:
             n_features: Number of input features.
             n_actions: Number of possible actions.
-            n_hidden_units: Number of hidden units.
+            n_hidden_units (int | Sequence[int], optional):
+                Size(s) of hidden layers in the shared part of the network.
+                If an int is given, a single hidden layer is used. If a sequence
+                is given, one hidden layer is created per element. Defaults to 128.
             lr: Learning rate for the optimizer.
 
         """

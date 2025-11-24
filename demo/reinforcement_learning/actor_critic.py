@@ -20,6 +20,10 @@ class ActorCritic(nn.Module):
     Args:
         n_features (int): The number of features in the input state.
         n_actions (int): The number of possible actions the agent can take.
+        n_hidden_units (int | Sequence[int], optional):
+            Size(s) of hidden layers in the shared part of the network.
+            If an int is given, a single hidden layer is used. If a sequence
+            is given, one hidden layer is created per element. Defaults to 128.
         lr (float, optional): Learning rate for the optimizer. Defaults to 3e-2.
 
     """
@@ -63,7 +67,7 @@ class ActorCritic(nn.Module):
             torch.Tensor: The log probabilities of each action for the given state.
 
         """
-        x = self.shared(x)  # Apply the first affine layer and ReLU activation
+        x = self.shared(x)
         log_probs = f.log_softmax(self.action_head(x), dim=-1)  # Compute the log-probabilities of each action
         return log_probs
 
@@ -78,7 +82,7 @@ class ActorCritic(nn.Module):
             torch.Tensor: The estimated value of the state.
 
         """
-        x = self.shared(x)  # Apply the first affine layer and ReLU activation
+        x = self.shared(x)
         state_value = self.value_head(x)  # Compute the state value using the value head
         return state_value
 
