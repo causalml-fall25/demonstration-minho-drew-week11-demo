@@ -1,3 +1,5 @@
+from typing import Sequence, Union
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -22,16 +24,32 @@ class ActorCritic(nn.Module):
 
     """
 
-    def __init__(self, n_features: int, n_actions: int, n_hidden_units: int = 128, lr: float = 3e-2):
+    def __init__(self, n_features: int, n_actions: int, n_hidden_units: Union[int, Sequence[int]] = 128, lr: float = 3e-2):
         """Initialize the actor and critic networks."""
         super(ActorCritic, self).__init__()
 
-        # Define the layers of the network for both actor and critic
-        self.affine1 = nn.Linear(n_features, n_hidden_units)  # Common first layer for both networks
-        self.action_head = nn.Linear(n_hidden_units, n_actions)  # Action output layer (Actor)
-        self.value_head = nn.Linear(n_hidden_units, 1)  # Value output layer (Critic)
+        # Turn single int into a list, keep lists/tuples as-is
+        if isinstance(n_hidden_units, int):
+            hidden_sizes = [n_hidden_units]
+        else:
+            hidden_sizes = list(n_hidden_units)
 
-        # Optimizer for training the model
+        assert len(hidden_sizes) > 0, "n_hidden_units must contain at least one hidden layer size."
+
+        # Build shared hidden layers: n_features -> h1 -> h2 -> ... -> hN
+        layers: list[nn.Module] = []
+        in_dim = n_features
+        for h in hidden_sizes:
+            layers.append(nn.Linear(in_dim, h))
+            layers.append(nn.ReLU())
+            in_dim = h
+
+        self.shared = nn.Sequential(*layers)
+
+        # Heads take input from last hidden layer (size = hidden_sizes[-1])
+        self.action_head = nn.Linear(in_dim, n_actions)
+        self.value_head = nn.Linear(in_dim, 1)
+
         self.optimizer = optim.Adam(self.parameters(), lr=lr)
 
     def actor(self, x: torch.Tensor) -> torch.Tensor:
@@ -45,7 +63,7 @@ class ActorCritic(nn.Module):
             torch.Tensor: The log probabilities of each action for the given state.
 
         """
-        x = f.relu(self.affine1(x))  # Apply the first affine layer and ReLU activation
+        x = self.shared(x)  # Apply the first affine layer and ReLU activation
         log_probs = f.log_softmax(self.action_head(x), dim=-1)  # Compute the log-probabilities of each action
         return log_probs
 
@@ -60,7 +78,7 @@ class ActorCritic(nn.Module):
             torch.Tensor: The estimated value of the state.
 
         """
-        x = f.relu(self.affine1(x))  # Apply the first affine layer and ReLU activation
+        x = self.shared(x)  # Apply the first affine layer and ReLU activation
         state_value = self.value_head(x)  # Compute the state value using the value head
         return state_value
 

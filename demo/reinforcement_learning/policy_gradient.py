@@ -1,3 +1,5 @@
+from typing import Sequence, Union
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -9,7 +11,7 @@ from numpy.typing import NDArray
 class PolicyGradient(nn.Module):
     """Policy gradient model for reinforcement learning."""
 
-    def __init__(self, n_features: int, n_actions: int, n_hidden_units: int = 128, lr: float = 3e-2):
+    def __init__(self, n_features: int, n_actions: int, n_hidden_units: Union[int, Sequence[int]] = 128, lr: float = 3e-2):
         """
         Initialize the policy network.
 
@@ -22,9 +24,26 @@ class PolicyGradient(nn.Module):
         """
         super(PolicyGradient, self).__init__()
 
-        # Define the layers of the network
-        self.affine1 = nn.Linear(n_features, n_hidden_units)
-        self.action_head = nn.Linear(n_hidden_units, n_actions)
+        # Turn single int into a list, keep lists/tuples as-is
+        if isinstance(n_hidden_units, int):
+            hidden_sizes = [n_hidden_units]
+        else:
+            hidden_sizes = list(n_hidden_units)
+
+        assert len(hidden_sizes) > 0, "n_hidden_units must contain at least one hidden layer size."
+
+        # Build shared hidden layers: n_features -> h1 -> h2 -> ... -> hN
+        layers: list[nn.Module] = []
+        in_dim = n_features
+        for h in hidden_sizes:
+            layers.append(nn.Linear(in_dim, h))
+            layers.append(nn.ReLU())
+            in_dim = h
+
+        self.shared = nn.Sequential(*layers)
+
+        # Define action head
+        self.action_head = nn.Linear(in_dim, n_actions)
 
         # Optimizer
         self.optimizer = optim.Adam(self.parameters(), lr=lr)
@@ -40,7 +59,7 @@ class PolicyGradient(nn.Module):
             Log probabilities of shape (n, n_actions).
 
         """
-        x = f.relu(self.affine1(x))
+        x = self.shared(x)
         log_probs = f.log_softmax(self.action_head(x), dim=-1)
         return log_probs
 

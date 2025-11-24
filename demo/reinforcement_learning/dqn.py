@@ -1,7 +1,8 @@
+from typing import Sequence, Union
+
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as f
 import torch.optim as optim
 from numpy.typing import NDArray
 
@@ -24,7 +25,7 @@ class DQN(nn.Module):
 
     """
 
-    def __init__(self, n_features: int, n_actions: int, lr: float = 3e-2, n_hidden_units: int = 128, epsilon: float = 0.1):
+    def __init__(self, n_features: int, n_actions: int, lr: float = 3e-2, n_hidden_units: Union[int, Sequence[int]] = 128, epsilon: float = 0.1):
         """
         Initialize a DQN (Deep Q-Network) model.
 
@@ -38,9 +39,25 @@ class DQN(nn.Module):
         """
         super(DQN, self).__init__()
 
-        # Define the layers of the network
-        self.affine1 = nn.Linear(n_features, n_hidden_units)
-        self.q_value_head = nn.Linear(n_hidden_units, n_actions)
+        # Turn single int into a list, keep lists/tuples as-is
+        if isinstance(n_hidden_units, int):
+            hidden_sizes = [n_hidden_units]
+        else:
+            hidden_sizes = list(n_hidden_units)
+
+        assert len(hidden_sizes) > 0, "n_hidden_units must contain at least one hidden layer size."
+
+        # Build shared hidden layers: n_features -> h1 -> h2 -> ... -> hN
+        layers: list[nn.Module] = []
+        in_dim = n_features
+        for h in hidden_sizes:
+            layers.append(nn.Linear(in_dim, h))
+            layers.append(nn.ReLU())
+            in_dim = h
+
+        self.shared = nn.Sequential(*layers)
+
+        self.q_value_head = nn.Linear(in_dim, n_actions)
 
         # Optimizer
         self.optimizer = optim.Adam(self.parameters(), lr=lr)
@@ -62,7 +79,7 @@ class DQN(nn.Module):
             torch.Tensor: Output tensor of shape (batch_size, n_actions), representing Q-values for each action.
 
         """
-        x = f.relu(self.affine1(x))
+        x = self.shared(x)
         q_values = self.q_value_head(x)
         return q_values
 
